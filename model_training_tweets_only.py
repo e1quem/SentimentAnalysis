@@ -20,12 +20,12 @@ DELTA   = 0.9   # signal-to-noise ratio. Paper: 0.9
 
 
 #### Loading data
-dfAAPL = pd.read_csv("data/training/AAPL_overnight_AVG3.csv", index_col=0, parse_dates=True)
-dfAMZN = pd.read_csv("data/training/AMZN_overnight_AVG3.csv", index_col=0, parse_dates=True)
-dfGOOG = pd.read_csv("data/training/GOOG_overnight_AVG3.csv", index_col=0, parse_dates=True)
-dfGOOGL = pd.read_csv("data/training/GOOGL_overnight_AVG3.csv", index_col=0, parse_dates=True)
-dfMSFT = pd.read_csv("data/training/MSFT_overnight_AVG3.csv", index_col=0, parse_dates=True)
-dfTSLA = pd.read_csv("data/training/TSLA_overnight_AVG3.csv", index_col=0, parse_dates=True)
+dfAAPL = pd.read_csv("data/training/AAPL_open_open_AVG3.csv", index_col=0, parse_dates=True)
+dfAMZN = pd.read_csv("data/training/AMZN_open_open_AVG3.csv", index_col=0, parse_dates=True)
+dfGOOG = pd.read_csv("data/training/GOOG_open_open_AVG3.csv", index_col=0, parse_dates=True)
+dfGOOGL = pd.read_csv("data/training/GOOGL_open_open_AVG3.csv", index_col=0, parse_dates=True)
+dfMSFT = pd.read_csv("data/training/MSFT_open_open_AVG3.csv", index_col=0, parse_dates=True)
+dfTSLA = pd.read_csv("data/training/TSLA_open_open_AVG3.csv", index_col=0, parse_dates=True)
 
 #df = {"AAPL": dfAAPL, "AMZN": dfAMZN, "GOOG": dfGOOG, "GOOGL": dfGOOGL, "MSFT": dfMSFT, "TSLA": dfTSLA}
 base_df = {"AAPL": dfAAPL, "AMZN": dfAMZN, "GOOG": dfGOOG, "GOOGL": dfGOOGL, "MSFT": dfMSFT, "TSLA": dfTSLA}
@@ -60,13 +60,6 @@ def add_combo_features_hl(df_in, hl_combo):
     df_out = df_in.copy()
     df_out["HL_SENT"] = df_out[[SENTIMENT_MAP[s][1] for s in hl_combo]].mean(axis=1)
     return df_out
-
-def load_panel(source):
-    suffix = "_overnight_AVG3.csv" if source == "overnight" else "_AVG3.csv"
-    return {
-        t: pd.read_csv(f"data/training/{t}{suffix}", index_col=0, parse_dates=True)
-        for t in TICKERS
-    }
 
 ###
 
@@ -542,37 +535,39 @@ if __name__ == "__main__":
 
     #COMMENT = input("Remark: ")
 
-    RESULTS_CSV = "data/logAVG3.csv"
+    RESULTS_CSV = "data/logAVG3bis.csv"
 
-    MODEL_SPECS = [
-        {"comment": "T=VADER | HL=RoBERTa+BoW+TBlob+VADER", "source": "avg3", "tv": ["VADER"], "hl": ["RoBERTa", "BoW", "TBlob", "VADER"]},
-        {"comment": "T=VADER | HL=VADER",                    "source": "avg3", "tv": ["VADER"], "hl": ["VADER"]},
-        {"comment": "T=VADER | HL=BoW+TBlob+VADER",          "source": "avg3", "tv": ["VADER"], "hl": ["BoW", "TBlob", "VADER"]},
-        {"comment": "overnight T=VADER",                     "source": "overnight", "tv": ["VADER"], "hl": None},
-        {"comment": "overnight T=TBlob+VADER",               "source": "overnight", "tv": ["TBlob", "VADER"], "hl": None},
-        {"comment": "HL=VADER",                              "source": "avg3", "tv": None, "hl": ["VADER"]},
-        {"comment": "T=VADER",                               "source": "avg3", "tv": ["VADER"], "hl": None},
-        {"comment": "overnight T=TBlob",                     "source": "overnight", "tv": ["TBlob"], "hl": None},
-        {"comment": "T=BoW+VADER | HL=VADER",                "source": "avg3", "tv": ["BoW", "VADER"], "hl": ["VADER"]},
-        {"comment": "T=VADER | HL=BoW+VADER",                "source": "avg3", "tv": ["VADER"], "hl": ["BoW", "VADER"]},
-    ]
-
-    def make_runs(specs):
-        runs = []
-        for s in specs:
-            features = []
-            if s["tv"] is not None:
-                features.append("T_SENT")
-            if s["hl"] is not None:
-                features.append("HL_SENT")
-            runs.append({**s, "features": features})
-        return runs
-
-    RUNS = make_runs(MODEL_SPECS)
+    #MODEL_SPECS = [
+    #    {"comment": "T=VADER | HL=RoBERTa+BoW+TBlob+VADER", "source": "avg3", "tv": ["VADER"], "hl": ["RoBERTa", "BoW", "TBlob", "VADER"]},
+    #    {"comment": "T=VADER | HL=VADER",                    "source": "avg3", "tv": ["VADER"], "hl": ["VADER"]},
+    #    {"comment": "T=VADER | HL=BoW+TBlob+VADER",          "source": "avg3", "tv": ["VADER"], "hl": ["BoW", "TBlob", "VADER"]},
+    #    {"comment": "overnight T=VADER",                     "source": "overnight", "tv": ["VADER"], "hl": None},
+    #    {"comment": "overnight T=TBlob+VADER",               "source": "overnight", "tv": ["TBlob", "VADER"], "hl": None},
+    #    {"comment": "HL=VADER",                              "source": "avg3", "tv": None, "hl": ["VADER"]},
+    #    {"comment": "T=VADER",                               "source": "avg3", "tv": ["VADER"], "hl": None},
+    #    {"comment": "overnight T=TBlob",                     "source": "overnight", "tv": ["TBlob"], "hl": None},
+    #    {"comment": "T=BoW+VADER | HL=VADER",                "source": "avg3", "tv": ["BoW", "VADER"], "hl": ["VADER"]},
+    #    {"comment": "T=VADER | HL=BoW+VADER",                "source": "avg3", "tv": ["VADER"], "hl": ["BoW", "VADER"]},
+    #]
+#
+    #def make_runs(specs):
+    #    runs = []
+    #    for s in specs:
+    #        features = []
+    #        if s["tv"] is not None:
+    #            features.append("T_SENT")
+    #        if s["hl"] is not None:
+    #            features.append("HL_SENT")
+    #        runs.append({**s, "features": features})
+    #    return runs
+#
+    #RUNS = make_runs(MODEL_SPECS)
     
-    #tv_combos = all_non_empty_combos(BASE_SENTIMENTS)
+    tv_combos = all_non_empty_combos(BASE_SENTIMENTS)
 
-    #for tv_combo in tv_combos:
+    for tv_combo in tv_combos:
+        
+        # THIS IS TO MAKE BOTH RUN
         #for hl_combo in hl_combos:
         #    COMMENT = f"T={combo_label(tv_combo)} | HL={combo_label(hl_combo)}"
         #    print(f"\nCONFIG: {COMMENT}")
@@ -581,30 +576,36 @@ if __name__ == "__main__":
         #    for ticker in TICKERS:
         #        df[ticker] = add_combo_features(df[ticker], tv_combo, hl_combo)
 
-        #COMMENT = f"overnight T={combo_label(tv_combo)}"
-        #print(f"\nCONFIG: {COMMENT}")
-#
-        #df = {k: v.copy() for k, v in base_df.items()}
-        #for ticker in TICKERS:
-        #    df[ticker] = add_combo_features(df[ticker], tv_combo)
 
-    for run in RUNS:
-        COMMENT = run["comment"] + " | ewma5 0.3"
-        TV_FEATURES = run["features"]
 
+        # THIS IS TO MAKE ONLY ONE RUN
+        COMMENT = f"open-open T={combo_label(tv_combo)}"
         print(f"\nCONFIG: {COMMENT}")
-
-        df = load_panel(run["source"])
-
+#
+        df = {k: v.copy() for k, v in base_df.items()}
         for ticker in TICKERS:
-            if run["tv"] is not None and run["hl"] is not None:
-                df[ticker] = add_combo_features(df[ticker], run["tv"])
-                df[ticker] = add_combo_features_hl(df[ticker], run["hl"])
-            elif run["tv"] is not None:
-                df[ticker] = add_combo_features(df[ticker], run["tv"])
-            elif run["hl"] is not None:
-                df[ticker] = add_combo_features_hl(df[ticker], run["hl"])
+            df[ticker] = add_combo_features(df[ticker], tv_combo)
 
+
+    # THIS IS TO RUN PRESETS
+    #for run in RUNS:
+    #    COMMENT = run["comment"] + " | ewma5 0.3"
+    #    TV_FEATURES = run["features"]
+#
+    #    print(f"\nCONFIG: {COMMENT}")
+#
+    #    df = load_panel(run["source"])
+#
+    #    for ticker in TICKERS:
+    #        if run["tv"] is not None and run["hl"] is not None:
+    #            df[ticker] = add_combo_features(df[ticker], run["tv"])
+    #            df[ticker] = add_combo_features_hl(df[ticker], run["hl"])
+    #        elif run["tv"] is not None:
+    #            df[ticker] = add_combo_features(df[ticker], run["tv"])
+    #        elif run["hl"] is not None:
+    #            df[ticker] = add_combo_features_hl(df[ticker], run["hl"])
+
+        ### THIS IS FOR ALL MODELS, JUST NEED TO CHANGE INDENT
         for target in ['ret1']:
             print(f"TARGET: {target}")
             Y, X, Z, dates = build_panel(df, target, max_T=629)
@@ -660,6 +661,7 @@ if __name__ == "__main__":
             row = {
                 "date": pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S"),
                 "comment": COMMENT,
+                "avg": "log-weighted",
                 "hit_rate_mean": hit_rate.mean(),
                 "r2_oos_mean": r2_oos.mean(),
             }
