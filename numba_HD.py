@@ -1,117 +1,32 @@
+# First batch
+
+dfHL = pd.read_csv("data/output/HL_sentiment_Dly.csv")
+
+dfAAPL = pd.read_csv("data/training/AAPL_AVG1.csv", index_col=0, parse_dates=True)
+dfAMZN = pd.read_csv("data/training/AMZN_AVG1.csv", index_col=0, parse_dates=True)
+dfGOOG = pd.read_csv("data/training/GOOG_AVG1.csv", index_col=0, parse_dates=True)
+dfGOOGL = pd.read_csv("data/training/GOOGL_AVG1.csv", index_col=0, parse_dates=True)
+dfMSFT = pd.read_csv("data/training/MSFT_AVG1.csv", index_col=0, parse_dates=True)
+dfTSLA = pd.read_csv("data/training/TSLA_AVG1.csv", index_col=0, parse_dates=True)
+
+df = {"AAPL": dfAAPL, "AMZN": dfAMZN, "GOOG": dfGOOG, "GOOGL": dfGOOGL, "MSFT": dfMSFT, "TSLA": dfTSLA}
+
 import numpy as np
 import pandas as pd
 from scipy.stats import invwishart
 from numba import njit
-from itertools import combinations
 
 ########## CONFIG ##########
 TICKERS       = ["AAPL", "AMZN", "GOOG", "GOOGL", "MSFT", "TSLA"]
-BASE_SENTIMENTS = ["RoBERTa", "BoW", "TBlob", "VADER"] # new
-#TV_FEATURES   = ["T_SENT", "HL_SENT"]  # testing both
-#TV_FEATURES   = ["TRoBERTa", "HLRoBERTa"]  # initial
-TV_FEATURES   = ["T_SENT"]
+#TV_FEATURES   = ["TVADER", "HLTBlob"]                          # X : time-varying (sentiment)
+TV_FEATURES   = ["TRoBERTa", "HLRoBERTa"] 
 STAT_FEATURES = ["dlyret", "past_3ret", "past_7ret",
                  "volumeSPX", "dlyretSPX", "VIX"]              # Z : non-time-varying
 TARGETS       = ["ret1", "ret7"]
 
-N_ITER  = 2000 # Paper: 5000
-BURN_IN = 500  # Paper: 1000
+N_ITER  = 5000 # Paper: 5000
+BURN_IN = 1000  # Paper: 1000
 DELTA   = 0.9   # signal-to-noise ratio. Paper: 0.9
-
-
-#### Loading data
-dfAAPL = pd.read_csv("data/training/AAPL_overnight2_AVG3.csv", index_col=0, parse_dates=True)
-dfAMZN = pd.read_csv("data/training/AMZN_overnight2_AVG3.csv", index_col=0, parse_dates=True)
-dfGOOG = pd.read_csv("data/training/GOOG_overnight2_AVG3.csv", index_col=0, parse_dates=True)
-dfGOOGL = pd.read_csv("data/training/GOOGL_overnight2_AVG3.csv", index_col=0, parse_dates=True)
-dfMSFT = pd.read_csv("data/training/MSFT_overnight2_AVG3.csv", index_col=0, parse_dates=True)
-dfTSLA = pd.read_csv("data/training/TSLA_overnight2_AVG3.csv", index_col=0, parse_dates=True)
-
-#df = {"AAPL": dfAAPL, "AMZN": dfAMZN, "GOOG": dfGOOG, "GOOGL": dfGOOGL, "MSFT": dfMSFT, "TSLA": dfTSLA}
-base_df = {"AAPL": dfAAPL, "AMZN": dfAMZN, "GOOG": dfGOOG, "GOOGL": dfGOOGL, "MSFT": dfMSFT, "TSLA": dfTSLA}
-
-
-### new
-SENTIMENT_MAP = {
-      "RoBERTa": ("TRoBERTa", "HLRoBERTa"),
-      "BoW":     ("TBoW",     "HLBoW"),
-      "TBlob":   ("TTBlob",   "HLTBlob"),
-      "VADER":   ("TVADER",   "HLVADER"),
-  }
-
-def all_non_empty_combos(items):
-    return [list(c) for r in range(1, len(items) + 1) for c in combinations(items, r)]
-
-def combo_label(combo):
-    return "+".join(combo)
-
-#def add_combo_features(df_in, tv_combo, hl_combo):
-#    df_out = df_in.copy()
-#    df_out["T_SENT"] = df_out[[SENTIMENT_MAP[s][0] for s in tv_combo]].mean(axis=1)
-#    df_out["HL_SENT"] = df_out[[SENTIMENT_MAP[s][1] for s in hl_combo]].mean(axis=1)
-#    return df_out
-
-def add_combo_features(df_in, tv_combo):
-    df_out = df_in.copy()
-    df_out["T_SENT"] = df_out[[SENTIMENT_MAP[s][0] for s in tv_combo]].mean(axis=1)
-    return df_out
-
-def add_combo_features_hl(df_in, hl_combo):
-    df_out = df_in.copy()
-    df_out["HL_SENT"] = df_out[[SENTIMENT_MAP[s][1] for s in hl_combo]].mean(axis=1)
-    return df_out
-
-def _ewma_window(window_vals, alpha):
-    weights = (1 - alpha) ** np.arange(len(window_vals))[::-1]
-    return np.sum(weights * window_vals) / np.sum(weights)
-
-def preprocess_sentiment_columns(df_in, cols, kind, window, alpha=None):
-    """
-    Smooth sentiment columns using only current and past values.
-
-    kind:
-        - "avg"  : simple rolling mean over the last `window` observations
-        - "ewma" : rolling EWMA over the last `window` observations
-    """
-    df_out = df_in.copy()
-
-    for col in cols:
-        if col not in df_out.columns:
-            continue
-
-        s = df_out[col]
-        s_obs = s.dropna()
-
-        if kind == "avg":
-            transformed = s_obs.rolling(window=window, min_periods=1).mean()
-        elif kind == "ewma":
-            if alpha is None:
-                raise ValueError("alpha must be provided for EWMA preprocessing")
-            transformed = s_obs.rolling(window=window, min_periods=1).apply(
-                lambda w: _ewma_window(w.values, alpha), raw=False
-            )
-        else:
-            raise ValueError(f"Unknown preprocessing kind: {kind}")
-
-        df_out[col] = transformed.reindex(s.index, method="ffill").fillna(0)
-
-    return df_out
-
-def load_panel(source):
-      if source == "overnight":
-          suffix = "_overnight_AVG3.csv"
-      elif source == "overnight2":
-          suffix = "_overnight2_AVG3.csv"
-      else:
-          suffix = "_AVG3.csv"
-
-      return {
-          t: pd.read_csv(f"data/training/{t}{suffix}", index_col=0,
-          parse_dates=True)
-          for t in TICKERS
-      }
-
-###
 
 
 ########### STEP 1 — BUILD ALIGNED PANEL ##########
@@ -136,13 +51,9 @@ def build_panel(df: dict, target: str, max_T: int = None):
     X = np.full((T, M, K), np.nan)
     Z = np.full((T, M, p), np.nan)
 
-    def ewma_weights(window_vals, alpha):
-        weights = (1 - alpha) ** np.arange(len(window_vals))[::-1]
-        return np.sum(weights * window_vals) / np.sum(weights)
-
     for j, ticker in enumerate(TICKERS):
         dft = df[ticker].reindex(common_idx)
-        dft[TV_FEATURES] = dft[TV_FEATURES].apply(lambda col: col.dropna().rolling(window=5, min_periods=1).apply(lambda w: ewma_weights(w.values, 0.5)).reindex(dft.index, method='ffill')).fillna(0) # EWMA
+        dft[TV_FEATURES]   = dft[TV_FEATURES].ffill().fillna(0)
         dft[STAT_FEATURES] = dft[STAT_FEATURES].ffill().fillna(0)
         Y[:, j]    = dft[target].values
         X[:, j, :] = dft[TV_FEATURES].values
@@ -580,170 +491,75 @@ def forecast(chains: dict, X_new: np.ndarray, Z_new: np.ndarray, Sigma_hat: np.n
 ########### MAIN ##########
 if __name__ == "__main__":
 
-    #COMMENT = input("Remark: ")
+    for target in ['ret1']:
+        print(f"TARGET: {target}")
 
-    RESULTS_CSV = "data/logAVG3.csv"
+        Y, X, Z, dates = build_panel(df, target, max_T=1258)
 
-    MODEL_SPECS = [
-        #{"comment": "T=VADER | HL=RoBERTa+BoW+TBlob+VADER", "source": "avg3", "tv": ["VADER"], "hl": ["RoBERTa", "BoW", "TBlob", "VADER"]},
-        #{"comment": "T=VADER | HL=VADER",                    "source": "avg3", "tv": ["VADER"], "hl": ["VADER"]},
-        
-        {"comment": "T=VADER | HL=BoW+TBlob+VADER",          "source": "avg3", "tv": ["VADER"], "hl": ["BoW", "TBlob", "VADER"]},
-        
-        #{"comment": "overnight T=VADER",                     "source": "overnight", "tv": ["VADER"], "hl": None},
-        #{"comment": "overnight T=TBlob+VADER",               "source": "overnight", "tv": ["TBlob", "VADER"], "hl": None},
-        #{"comment": "HL=VADER",                              "source": "avg3", "tv": None, "hl": ["VADER"]},
-        #{"comment": "T=VADER",                               "source": "avg3", "tv": ["VADER"], "hl": None},
-        #{"comment": "overnight T=TBlob",                     "source": "overnight", "tv": ["TBlob"], "hl": None},
-        #{"comment": "T=BoW+VADER | HL=VADER",                "source": "avg3", "tv": ["BoW", "VADER"], "hl": ["VADER"]},
-        
-        {"comment": "T=VADER | HL=BoW+VADER",                "source": "avg3", "tv": ["VADER"], "hl": ["BoW", "VADER"]},
-        {"comment": "overnight V2 T=BoW",                    "source": "overnight2", "tv": ["BoW"], "hl": None},
-        
-        #{"comment": "overnight V2 T=BoW+VADER",              "source": "overnight2", "tv": ["BoW", "VADER"], "hl": None},
-    ]
+        # 1. Définition du split 80/20
+        split_idx = int(len(Y) * 0.8)
+        Y_train, X_train, Z_train = Y[:split_idx], X[:split_idx], Z[:split_idx]
+        Y_test, X_test, Z_test, dates_test = Y[split_idx:], X[split_idx:], Z[split_idx:], dates[split_idx:]
 
-    def make_runs(specs):
-        runs = []
-        for s in specs:
-            features = []
-            if s["tv"] is not None:
-                features.append("T_SENT")
-            if s["hl"] is not None:
-                features.append("HL_SENT")
-            runs.append({**s, "features": features})
-        return runs
+        print(f"Y (train): {Y_train.shape}")
+        print(f"Y (test): {Y_test.shape}")
 
-    RUNS = make_runs(MODEL_SPECS)
+        # 2. Exécution du Gibbs sampler uniquement sur le Train
+        chains_list = []
+        for chain_id, seed in enumerate([42, 123]):
+            print(f"\nChain {chain_id + 1}/2 — seed={seed}")
+            chain = run_gibbs(Y_train, X_train, Z_train, n_iter=N_ITER, burn_in=BURN_IN, delta=DELTA, seed=seed)
+            chains_list.append(chain)
 
-    #AVG_WINDOWS = list(range(2, 11)) + [15, 20]
-    AVG_WINDOWS = [3, 8, 6, 10, 4, 5]
-    #EWMA_ALPHAS = [0.1, 0.3, 0.5, 0.7]
-    EWMA_ALPHAS = [0.1, 0.7, 0.3]
-    PREPROCS = (
-        [{"kind": "avg", "window": w} for w in AVG_WINDOWS]
-        + [{"kind": "ewma", "window": w, "alpha": a} for w in AVG_WINDOWS for a in EWMA_ALPHAS]
-    )
-    
-    #tv_combos = all_non_empty_combos(BASE_SENTIMENTS)
+        # 3. Diagnostic Gelman-Rubin
+        print("\nGelman-Rubin R-hat for alpha (Train):")
+        for j, ticker in enumerate(TICKERS):
+            rhat = gelman_rubin([c["alpha"][:, j] for c in chains_list])
+            print(f"  {ticker}: R-hat = {rhat:.4f}")
 
-    #for tv_combo in tv_combos:
-        #for hl_combo in hl_combos:
-        #    COMMENT = f"T={combo_label(tv_combo)} | HL={combo_label(hl_combo)}"
-        #    print(f"\nCONFIG: {COMMENT}")
-#
-        #    df = {k: v.copy() for k, v in base_df.items()}
-        #    for ticker in TICKERS:
-        #        df[ticker] = add_combo_features(df[ticker], tv_combo, hl_combo)
+        Sigma_hat = estimate_Sigma_post_gibbs([c["beta"] for c in chains_list])
+        print(f"\nSigma_hat (post-Gibbs) diag: {np.diag(Sigma_hat)}")
 
-        #COMMENT = f"overnight T={combo_label(tv_combo)}"
-        #print(f"\nCONFIG: {COMMENT}")
-#
-        #df = {k: v.copy() for k, v in base_df.items()}
-        #for ticker in TICKERS:
-        #    df[ticker] = add_combo_features(df[ticker], tv_combo)
+        # 4. Combinaison des chaînes
+        combined = {
+            key: np.concatenate([c[key] for c in chains_list], axis=0)
+            for key in chains_list[0]
+        }
 
-    for preproc in PREPROCS:
-        if preproc["kind"] == "avg":
-            preproc_label = f"AVG {preproc['window']}"
-        else:
-            preproc_label = f"EWMA {preproc['window']}, {preproc['alpha']}"
+        # 5. Extraction des paramètres postérieurs moyens
+        alpha_hat = combined["alpha"].mean(axis=0)        # (M,)
+        gamma_hat = combined["gamma"].mean(axis=0)        # (M, p)
+        m_T = combined["beta"].mean(axis=0)[-1]           # (M, K) - Dernier état d'entraînement
 
-        for run in RUNS:
-            COMMENT = f"{run['comment']} | {preproc_label}"
-            TV_FEATURES = run["features"]
+        # 6. Prédiction OOS (Application de l'équation 21 du papier)
+        Y_pred = (alpha_hat[None, :]
+                  + np.einsum('tmk,mk->tm', X_test, m_T)
+                  + np.einsum('tmp,mp->tm', Z_test, gamma_hat))
 
-            print(f"\nCONFIG: {COMMENT}")
+        # OOS evaluation
+        mae_oos = np.abs(Y_test - Y_pred).mean(axis=0)
 
-            df = load_panel(run["source"])
+        print(f"\nOut-of-sample MAE per stock ({target}):")
+        for j, ticker in enumerate(TICKERS):
+            print(f"  {ticker}: {mae_oos[j]:.6f}")
 
-            for ticker in TICKERS:
-                if run["tv"] is not None and run["hl"] is not None:
-                    df[ticker] = add_combo_features(df[ticker], run["tv"])
-                    df[ticker] = add_combo_features_hl(df[ticker], run["hl"])
-                elif run["tv"] is not None:
-                    df[ticker] = add_combo_features(df[ticker], run["tv"])
-                elif run["hl"] is not None:
-                    df[ticker] = add_combo_features_hl(df[ticker], run["hl"])
+        hit_rate = np.mean(np.sign(Y_pred) == np.sign(Y_test), axis=0)
 
-                df[ticker] = preprocess_sentiment_columns(
-                    df[ticker],
-                    TV_FEATURES,
-                    preproc["kind"],
-                    preproc["window"],
-                    preproc.get("alpha"),
-                )
+        print("\nDirectional Accuracy (Hit Rate):")
+        for j, ticker in enumerate(TICKERS):
+            print(f"  {ticker}: {hit_rate[j]:.4f}")
 
-            for target in ['ret1']:
-                print(f"TARGET: {target}")
-                Y, X, Z, dates = build_panel(df, target, max_T=629)
-        
-                # 1. Définition du split 80/20
-                split_idx = int(len(Y) * 0.8)
-                Y_train, X_train, Z_train = Y[:split_idx], X[:split_idx], Z[:split_idx]
-                Y_test, X_test, Z_test, dates_test = Y[split_idx:], X[split_idx:], Z[split_idx:], dates[split_idx:]
-        
-                print(f"Y (train): {Y_train.shape}")
-                print(f"Y (test): {Y_test.shape}")
-        
-                # 2. Exécution du Gibbs sampler uniquement sur le Train
-                chains_list = []
-                for chain_id, seed in enumerate([42, 123]):
-                    print(f"\nChain {chain_id + 1}/2 — seed={seed}")
-                    chain = run_gibbs(Y_train, X_train, Z_train, n_iter=N_ITER, burn_in=BURN_IN, delta=DELTA, seed=seed)
-                    chains_list.append(chain)
-        
-                # 3. Diagnostic Gelman-Rubin
-                print("\nGelman-Rubin R-hat for alpha (Train):")
-                for j, ticker in enumerate(TICKERS):
-                    rhat = gelman_rubin([c["alpha"][:, j] for c in chains_list])
-                    print(f"  {ticker}: R-hat = {rhat:.4f}")
-        
-                Sigma_hat = estimate_Sigma_post_gibbs([c["beta"] for c in chains_list])
-        
-                # 4. Combinaison des chaînes
-                combined = {
-                    key: np.concatenate([c[key] for c in chains_list], axis=0)
-                    for key in chains_list[0]
-                }
-        
-                # 5. Extraction des paramètres postérieurs moyens
-                alpha_hat = combined["alpha"].mean(axis=0)        # (M,)
-                gamma_hat = combined["gamma"].mean(axis=0)        # (M, p)
-                m_T = combined["beta"].mean(axis=0)[-1]           # (M, K) - Dernier état d'entraînement
-        
-                # 6. Prédiction OOS (Application de l'équation 21 du papier)
-                Y_pred = (alpha_hat[None, :]
-                          + np.einsum('tmk,mk->tm', X_test, m_T)
-                          + np.einsum('tmp,mp->tm', Z_test, gamma_hat))
-        
-                # OOS evaluation
-                hit_rate = np.mean(np.sign(Y_pred) == np.sign(Y_test), axis=0)
-        
-        
-                mse_model = np.sum((Y_test - Y_pred)**2, axis=0)
-                mse_naive = np.sum(Y_test**2, axis=0)
-                r2_oos = 1 - (mse_model / mse_naive)
-        
-                # ---- Sauvegarde des résultats en CSV ----
-                row = {
-                    "date": pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S"),
-                    "comment": COMMENT,
-                    "hit_rate_mean": hit_rate.mean(),
-                    "r2_oos_mean": r2_oos.mean(),
-                }
-                for j, ticker in enumerate(TICKERS):
-                    row[f"hit_rate_{ticker}"] = hit_rate[j]
-        
-                new_row_df = pd.DataFrame([row])
-        
-                try:
-                    existing = pd.read_csv(RESULTS_CSV)
-                    updated = pd.concat([existing, new_row_df], ignore_index=True)
-                except FileNotFoundError:
-                    updated = new_row_df
-        
-                updated.to_csv(RESULTS_CSV, index=False)
-                print(f"Results saved: {RESULTS_CSV}")
-                import subprocess
-                subprocess.run(['afplay', '/System/Library/Sounds/Bottle.aiff'])
+        strat_returns = np.sign(Y_pred) * Y_test
+        cum_pnl = strat_returns.sum(axis=0)
+
+        print("\nCumulative OOS P&L:")
+        for j, ticker in enumerate(TICKERS):
+            print(f"  {ticker}: {cum_pnl[j]:.4f}")
+
+        mse_model = np.sum((Y_test - Y_pred)**2, axis=0)
+        mse_naive = np.sum(Y_test**2, axis=0)
+        r2_oos = 1 - (mse_model / mse_naive)
+
+        print("\nOut-of-Sample R-squared (R2 OOS):")
+        for j, ticker in enumerate(TICKERS):
+            print(f"  {ticker}: {r2_oos[j]:.6f}")
