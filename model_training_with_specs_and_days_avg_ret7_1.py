@@ -13,9 +13,11 @@ STAT_FEATURES = ["dlyret", "past_3ret", "past_7ret",
                  "volumeSPX", "dlyretSPX", "VIX"]  # Z : non-time-varying
 TARGETS       = ["ret1", "ret7"]
 
-N_ITER  = 2000  # Paper: 5000
-BURN_IN = 500   # Paper: 1000
-DELTAS  = [0.9, 0.98, 0.95]
+N_ITER  = 5000  # Paper: 5000, trial= 2000
+BURN_IN = 1000   # Paper: 1000, trial=500
+# DELTAS  = [0.9, 0.98, 0.95]
+DELTAS  = [0.9] # DEBUG
+
 
 
 #### Loading data
@@ -141,9 +143,8 @@ def build_panel(df: dict, target: str, max_T: int = None):
 
     for j, ticker in enumerate(TICKERS):
         dft = df[ticker].reindex(common_idx)
-        dft[TV_FEATURES] = dft[TV_FEATURES].apply(lambda col: col.dropna().rolling(window=5,
-         min_periods=1).apply(lambda w: ewma_weights(w.values, 0.5)).reindex(dft.index, method='ffill'
-         )).fillna(0) # EWMA
+        #dft[TV_FEATURES] = dft[TV_FEATURES].apply(lambda col: col.dropna().rolling(window=5, min_periods=1).apply(lambda w: ewma_weights(w.values, 0.5)).reindex(dft.index, method='ffill')).fillna(0) # EWMA qui apparement lisse tout
+        dft[TV_FEATURES] = dft[TV_FEATURES].apply(lambda col: col.fillna(col.rolling(window=5, min_periods=1).apply(lambda w: ewma_weights(w.values, 0.5) if len(w) == 5 else np.nan, raw=False)))  # DEBUG
         dft[STAT_FEATURES] = dft[STAT_FEATURES].ffill().fillna(0)
         Y[:, j]    = dft[target].values
         X[:, j, :] = dft[TV_FEATURES].values
@@ -522,75 +523,19 @@ def estimate_Sigma_post_gibbs(beta_samples_list):
     return Sigma_hat
 
 
-########### STEP 4 — FORECAST  (paper multi-step forecasting) ##########
-def forecast(chains: dict, X_new: np.ndarray, Z_new: np.ndarray, Sigma_hat: np.ndarray, N: int = 1):
-    """
-    Multi-step forecast à l'horizon N (papier, éq. 18-20).
-
-    Sigma_hat : (M, M) — estimée séparément après le Gibbs sampling
-                (cf. estimate_Sigma_post_gibbs), PAS dérivée de sigma2_v*Omega.
-
-    Parameters
-    ----------
-    X_new : (M, K)   sentiment features à T+N
-    Z_new : (M, p)   features financières à T+N
-    N     : horizon de prévision (1 pour ret1, 7 pour ret7)
-
-    Returns
-    -------
-    mu    : (M,)    prévision moyenne posterior par stock
-    Sigma : (M, M)  matrice de covariance de prévision
-    """
-    M = len(TICKERS)
-    K = len(TV_FEATURES)
-
-    alpha_mean = chains["alpha"].mean(axis=0)       # (M,)
-    gamma_mean = chains["gamma"].mean(axis=0)       # (M, p)
-    m_T        = chains["beta"].mean(axis=0)[-1]    # (M, K) — dernier état d'entraînement
-    Omega_mean = chains["Omega"].mean(axis=0)       # (M, M)
-
-    # ---- Point forecast (éq. 19) ----
-    sent   = np.einsum('mk,mk->m', X_new, m_T)          # (M,)
-    static = np.einsum('mp,mp->m', Z_new, gamma_mean)    # (M,)
-    mu     = alpha_mean + sent + static                  # (M,)
-
-    # ---- Forecast covariance (éq. 20) ----
-    # F_{T+N} : vraie matrice bloc-diagonale (M, M*K), un bloc diag(X_new[:,k]) par feature k
-    F = np.zeros((M, M * K))
-    for k in range(K):
-        F[:, k*M:(k+1)*M] = np.diag(X_new[:, k])
-
-    # C_N : covariance des états à l'horizon N — bloc-diagonale (M*K, M*K),
-    # chaque bloc k = N * Sigma_hat (même Sigma_hat partagée à travers les features,
-    # cohérent avec le sampler qui suppose une structure Omega/Sigma commune)
-    C_N = np.zeros((M * K, M * K))
-    for k in range(K):
-        C_N[k*M:(k+1)*M, k*M:(k+1)*M] = N * Sigma_hat
-
-    # T*Sigma : accumulation de l'incertitude sur tout l'historique d'entraînement
-    T_train = chains["beta"].shape[1]
-    Sigma_tv = np.zeros((M * K, M * K))
-    for k in range(K):
-        Sigma_tv[k*M:(k+1)*M, k*M:(k+1)*M] = T_train * Sigma_hat
-
-    Sigma = F @ (C_N + Sigma_tv) @ F.T + Omega_mean    # (M, M)
-
-    return mu, Sigma
-
-
 ########### MAIN ##########
 if __name__ == "__main__":
 
     #COMMENT = input("Remark: ")
 
-    RESULTS_CSV = "data/logret7.csv"
-
+    RESULTS_CSV = "data/logret7bis.csv" # DEBUG
+     # Debug
     MODEL_SPECS = [
-        {"comment": "overnight V2 T=BoW", "source": "overnight2", "tv": ["BoW"], "hl": None},
-        {"comment": "overnight V2 T=BoW+VADER", "source": "overnight2", "tv": ["BoW", "VADER"], "hl": None},
-        {"comment": "overnight T=TBlob", "source": "overnight", "tv": ["TBlob"], "hl": None},
-        {"comment": "overnight T=VADER", "source": "overnight", "tv": ["VADER"], "hl": None},
-        {"comment": "overnight T=TBlob+VADER", "source": "overnight", "tv": ["TBlob", "VADER"], "hl": None},
+        #{"comment": "overnight V2 T=BoW", "source": "overnight2", "tv": ["BoW"], "hl": None},
+        #{"comment": "overnight V2 T=BoW+VADER", "source": "overnight2", "tv": ["BoW", "VADER"], "hl": None},
+        #{"comment": "overnight T=TBlob", "source": "overnight", "tv": ["TBlob"], "hl": None},
+        #{"comment": "overnight T=VADER", "source": "overnight", "tv": ["VADER"], "hl": None},
+        #{"comment": "overnight T=TBlob+VADER", "source": "overnight", "tv": ["TBlob", "VADER"], "hl": None},
         #{"comment": "T=BoW", "source": "avg3", "tv": ["BoW"], "hl": None},
         #{"comment": "T=VADER", "source": "avg3", "tv": ["VADER"], "hl": None},
         #{"comment": "T=BoW+VADER", "source": "avg3", "tv": ["BoW", "VADER"], "hl": None},
@@ -599,7 +544,7 @@ if __name__ == "__main__":
         #{"comment": "HL=BoW+VADER", "source": "avg3", "tv": None, "hl": ["BoW", "VADER"]},
         #{"comment": "T=VADER | HL=BoW", "source": "avg3", "tv": ["VADER"], "hl": ["BoW"]},
         #{"comment": "T=VADER | HL=BoW+VADER", "source": "avg3", "tv": ["VADER"], "hl": ["BoW", "VADER"]},
-        #{"comment": "T=VADER | HL=BoW+TBlob+VADER", "source": "avg3", "tv": ["VADER"], "hl": ["BoW", "TBlob", "VADER"]},
+        {"comment": "T=VADER | HL=BoW+TBlob+VADER", "source": "avg3", "tv": ["VADER"], "hl": ["BoW", "TBlob", "VADER"]},
         #{"comment": "T=BoW+VADER | HL=VADER", "source": "avg3", "tv": ["BoW", "VADER"], "hl": ["VADER"]},
     ]
 
@@ -616,42 +561,25 @@ if __name__ == "__main__":
 
     RUNS = make_runs(MODEL_SPECS)
 
+    # Debug
     PREPROCS = [
-        {"kind": "none", "label": "NO AVG"},
+        #{"kind": "none", "label": "NO AVG"},
         {"kind": "avg", "window": 4, "label": "AVG 4"},
-        {"kind": "avg", "window": 6, "label": "AVG 6"},
-        {"kind": "avg", "window": 8, "label": "AVG 8"},
-        {"kind": "avg", "window": 10, "label": "AVG 10"},
-        {"kind": "ewma", "window": 3, "alpha": 0.3, "label": "EWMA 3, 0.3"},
-        {"kind": "ewma", "window": 4, "alpha": 0.1, "label": "EWMA 4, 0.1"},
-        {"kind": "ewma", "window": 4, "alpha": 0.3, "label": "EWMA 4, 0.3"},
-        {"kind": "ewma", "window": 4, "alpha": 0.7, "label": "EWMA 4, 0.7"},
-        {"kind": "ewma", "window": 5, "alpha": 0.1, "label": "EWMA 5, 0.1"},
-        {"kind": "ewma", "window": 6, "alpha": 0.1, "label": "EWMA 6, 0.1"},
-        {"kind": "ewma", "window": 6, "alpha": 0.3, "label": "EWMA 6, 0.3"},
-        {"kind": "ewma", "window": 6, "alpha": 0.7, "label": "EWMA 6, 0.7"},
-        {"kind": "ewma", "window": 8, "alpha": 0.1, "label": "EWMA 8, 0.1"},
-        {"kind": "ewma", "window": 8, "alpha": 0.7, "label": "EWMA 8, 0.7"},
-        {"kind": "ewma", "window": 10, "alpha": 0.7, "label": "EWMA 10, 0.7"},
+        #{"kind": "avg", "window": 6, "label": "AVG 6"},
+        #{"kind": "avg", "window": 8, "label": "AVG 8"},
+        #{"kind": "avg", "window": 10, "label": "AVG 10"},
+        #{"kind": "ewma", "window": 3, "alpha": 0.3, "label": "EWMA 3, 0.3"},
+        #{"kind": "ewma", "window": 4, "alpha": 0.1, "label": "EWMA 4, 0.1"},
+        #{"kind": "ewma", "window": 4, "alpha": 0.3, "label": "EWMA 4, 0.3"},
+        #{"kind": "ewma", "window": 4, "alpha": 0.7, "label": "EWMA 4, 0.7"},
+        #{"kind": "ewma", "window": 5, "alpha": 0.1, "label": "EWMA 5, 0.1"},
+        #{"kind": "ewma", "window": 6, "alpha": 0.1, "label": "EWMA 6, 0.1"},
+        #{"kind": "ewma", "window": 6, "alpha": 0.3, "label": "EWMA 6, 0.3"},
+        #{"kind": "ewma", "window": 6, "alpha": 0.7, "label": "EWMA 6, 0.7"},
+        #{"kind": "ewma", "window": 8, "alpha": 0.1, "label": "EWMA 8, 0.1"},
+        #{"kind": "ewma", "window": 8, "alpha": 0.7, "label": "EWMA 8, 0.7"},
+        #{"kind": "ewma", "window": 10, "alpha": 0.7, "label": "EWMA 10, 0.7"},
     ]
-    
-    #tv_combos = all_non_empty_combos(BASE_SENTIMENTS)
-
-    #for tv_combo in tv_combos:
-        #for hl_combo in hl_combos:
-        #    COMMENT = f"T={combo_label(tv_combo)} | HL={combo_label(hl_combo)}"
-        #    print(f"\nCONFIG: {COMMENT}")
-#
-        #    df = {k: v.copy() for k, v in base_df.items()}
-        #    for ticker in TICKERS:
-        #        df[ticker] = add_combo_features(df[ticker], tv_combo, hl_combo)
-
-        #COMMENT = f"overnight T={combo_label(tv_combo)}"
-        #print(f"\nCONFIG: {COMMENT}")
-#
-        #df = {k: v.copy() for k, v in base_df.items()}
-        #for ticker in TICKERS:
-        #    df[ticker] = add_combo_features(df[ticker], tv_combo)
 
     for preproc in PREPROCS:
         preproc_label = preproc["label"]
@@ -685,7 +613,7 @@ if __name__ == "__main__":
 
                 for target in ['ret7']:
                     print(f"TARGET: {target}")
-                    Y, X, Z, dates = build_panel(df, target, max_T=314)
+                    Y, X, Z, dates = build_panel(df, target, max_T=629)
 
                     # 1. Définition du split 80/20
                     split_idx = int(len(Y) * 0.8)
@@ -716,6 +644,25 @@ if __name__ == "__main__":
                         for key in chains_list[0]
                     }
 
+                    # Confidence interval
+                    n_total_samples = combined["beta"].shape[0]
+                    n_used = (n_total_samples)
+                    idxs = np.arange(n_total_samples)
+                    
+                    pred_samples_list = []
+                    for idx in idxs:
+                        alpha_s = combined["alpha"][idx]
+                        gamma_s = combined["gamma"][idx]
+                        beta_s_T = combined["beta"][idx][-1]
+                        
+                        pred_s = (alpha_s[None, :] 
+                                  + np.einsum('tmk,mk->tm', X_test, beta_s_T) 
+                                  + np.einsum('tmp,mp->tm', Z_test, gamma_s))
+                        pred_samples_list.append(pred_s)
+                    
+                    pred_samples = np.stack(pred_samples_list, axis=0)
+                    Y_pred_std = pred_samples.std(axis=0) 
+
                     # 5. Extraction des paramètres postérieurs moyens
                     alpha_hat = combined["alpha"].mean(axis=0)        # (M,)
                     gamma_hat = combined["gamma"].mean(axis=0)        # (M, p)
@@ -726,12 +673,52 @@ if __name__ == "__main__":
                               + np.einsum('tmk,mk->tm', X_test, m_T)
                               + np.einsum('tmp,mp->tm', Z_test, gamma_hat))
 
+                    # Metrics
+                    from sklearn.metrics import precision_recall_fscore_support
+                    
+                    y_true = (Y_test > 0).astype(int)
+                    y_pred_class = (Y_pred > 0).astype(int)
+                    
+                    precision_list = []
+                    recall_list = []
+                    f1_list = []
+                    
+                    for j, ticker in enumerate(TICKERS):
+                        p, r, f, _ = precision_recall_fscore_support(
+                            y_true[:, j], 
+                            y_pred_class[:, j], 
+                            average='binary', 
+                            zero_division=0
+                        )
+                        precision_list.append(p)
+                        recall_list.append(r)
+                        f1_list.append(f)
+                        print(f"{ticker}: Precision={p:.4f}, Recall={r:.4f}, F1={f:.4f}")
+
+                    print(f"Mean Precision: {np.mean(precision_list):.4f}")
+                    print(f"Mean Recall:    {np.mean(recall_list):.4f}")
+                    print(f"Mean F1:        {np.mean(f1_list):.4f}")
+                      
                     # OOS evaluation
                     hit_rate = np.mean(np.sign(Y_pred) == np.sign(Y_test), axis=0)
 
                     mse_model = np.sum((Y_test - Y_pred)**2, axis=0)
                     mse_naive = np.sum(Y_test**2, axis=0)
                     r2_oos = 1 - (mse_model / mse_naive)
+
+                    # CSV daily
+                    pred_df = pd.DataFrame(index=dates_test)
+                    
+                    for j, ticker in enumerate(TICKERS):
+                        pred_df[f'{ticker}_actual'] = Y_test[:, j]
+                        pred_df[f'{ticker}_pred'] = Y_pred[:, j]
+                        pred_df[f'{ticker}_std'] = Y_pred_std[:, j]
+                        pred_df[f'{ticker}_correct'] = (np.sign(Y_pred[:, j]) == np.sign(Y_test[:, j])).astype(int)
+                    
+                    csv_filename = f"predictions_{target}_{COMMENT.replace(' | ', '_').replace(' ', '').replace('=', '')}.csv"
+                    pred_df.to_csv(csv_filename)
+                    print(f"Daily predictions saved to: {csv_filename}")
+
 
                     # ---- Sauvegarde des résultats en CSV ----
                     row = {
