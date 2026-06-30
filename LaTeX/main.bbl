@@ -1,0 +1,424 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.3 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{nyt/global//global/global/global}
+    \entry{araci2019finbert}{misc}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=97a8612b5f56ec2998e3383444841904}{%
+           family={Araci},
+           familyi={A\bibinitperiod},
+           given={Dogu},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{97a8612b5f56ec2998e3383444841904}
+      \strng{fullhash}{97a8612b5f56ec2998e3383444841904}
+      \strng{fullhashraw}{97a8612b5f56ec2998e3383444841904}
+      \strng{bibnamehash}{97a8612b5f56ec2998e3383444841904}
+      \strng{authorbibnamehash}{97a8612b5f56ec2998e3383444841904}
+      \strng{authornamehash}{97a8612b5f56ec2998e3383444841904}
+      \strng{authorfullhash}{97a8612b5f56ec2998e3383444841904}
+      \strng{authorfullhashraw}{97a8612b5f56ec2998e3383444841904}
+      \field{sortinit}{A}
+      \field{sortinithash}{2f401846e2029bad6b3ecc16d50031e2}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{eprintclass}{cs.CL}
+      \field{eprinttype}{arXiv}
+      \field{title}{FinBERT: Financial Sentiment Analysis with Pre-trained Language Models}
+      \field{year}{2019}
+      \verb{eprint}
+      \verb 1908.10063
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/1908.10063
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/1908.10063
+      \endverb
+    \endentry
+    \entry{bacco2024investigating}{article}{}{}
+      \name{author}{6}{}{%
+        {{un=0,uniquepart=base,hash=8c3862e8ff4fa6b908b2c0973bdb02c0}{%
+           family={Bacco},
+           familyi={B\bibinitperiod},
+           given={Luca},
+           giveni={L\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=c9121a978cc8c65630f7e66628a37756}{%
+           family={Petrosino},
+           familyi={P\bibinitperiod},
+           given={Lorenzo},
+           giveni={L\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=0e538acfa73fc7194d6e7ab31e36cb80}{%
+           family={Arganese},
+           familyi={A\bibinitperiod},
+           given={Domenico},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=d282dbaa8e402fd6a047bf60d8f0b48e}{%
+           family={Vollero},
+           familyi={V\bibinitperiod},
+           given={Luca},
+           giveni={L\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=c2364dc2e6504c275132203a9546d837}{%
+           family={Papi},
+           familyi={P\bibinitperiod},
+           given={Marco},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=7a3ea50663e180513cb130e7576c5b58}{%
+           family={Merone},
+           familyi={M\bibinitperiod},
+           given={Mario},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{ece7fd9218f52267933dfe9dfce9e524}
+      \strng{fullhash}{6cdaf18fbe321fab8236c299f652a7a5}
+      \strng{fullhashraw}{6cdaf18fbe321fab8236c299f652a7a5}
+      \strng{bibnamehash}{ece7fd9218f52267933dfe9dfce9e524}
+      \strng{authorbibnamehash}{ece7fd9218f52267933dfe9dfce9e524}
+      \strng{authornamehash}{ece7fd9218f52267933dfe9dfce9e524}
+      \strng{authorfullhash}{6cdaf18fbe321fab8236c299f652a7a5}
+      \strng{authorfullhashraw}{6cdaf18fbe321fab8236c299f652a7a5}
+      \field{sortinit}{B}
+      \field{sortinithash}{d7095fff47cda75ca2589920aae98399}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Access}
+      \field{title}{Investigating Stock Prediction Using LSTM Networks and Sentiment Analysis of Tweets Under High Uncertainty: A Case Study of North American and European Banks}
+      \field{volume}{12}
+      \field{year}{2024}
+      \field{pages}{122239\bibrangedash 122248}
+      \range{pages}{10}
+      \verb{doi}
+      \verb 10.1109/ACCESS.2024.3450311
+      \endverb
+    \endentry
+    \entry{bollen2011twitter}{article}{}{}
+      \name{author}{3}{}{%
+        {{un=0,uniquepart=base,hash=a7311f3ee6641339f0b1463c4f424817}{%
+           family={Bollen},
+           familyi={B\bibinitperiod},
+           given={Johan},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=5f5c5f0326aebe1320da9686839f2169}{%
+           family={Mao},
+           familyi={M\bibinitperiod},
+           given={Huina},
+           giveni={H\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=e25b79e06e29e6a0d6d9ab60c076215c}{%
+           family={Zeng},
+           familyi={Z\bibinitperiod},
+           given={Xiaojun},
+           giveni={X\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{b23df5e966bd8af3fe1ace223a4419f2}
+      \strng{fullhash}{270a29010029d182c7b09e64b09ce2ce}
+      \strng{fullhashraw}{270a29010029d182c7b09e64b09ce2ce}
+      \strng{bibnamehash}{270a29010029d182c7b09e64b09ce2ce}
+      \strng{authorbibnamehash}{270a29010029d182c7b09e64b09ce2ce}
+      \strng{authornamehash}{b23df5e966bd8af3fe1ace223a4419f2}
+      \strng{authorfullhash}{270a29010029d182c7b09e64b09ce2ce}
+      \strng{authorfullhashraw}{270a29010029d182c7b09e64b09ce2ce}
+      \field{sortinit}{B}
+      \field{sortinithash}{d7095fff47cda75ca2589920aae98399}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{1877-7503}
+      \field{journaltitle}{Journal of Computational Science}
+      \field{number}{1}
+      \field{title}{Twitter mood predicts the stock market}
+      \field{volume}{2}
+      \field{year}{2011}
+      \field{pages}{1\bibrangedash 8}
+      \range{pages}{8}
+      \verb{doi}
+      \verb 10.1016/j.jocs.2010.12.007
+      \endverb
+      \verb{urlraw}
+      \verb https://www.sciencedirect.com/science/article/pii/S187775031100007X
+      \endverb
+      \verb{url}
+      \verb https://www.sciencedirect.com/science/article/pii/S187775031100007X
+      \endverb
+    \endentry
+    \entry{gite2021explainable}{article}{}{}
+      \name{author}{6}{}{%
+        {{un=0,uniquepart=base,hash=3073aa2f024594dc0a2900459f12494b}{%
+           family={Gite},
+           familyi={G\bibinitperiod},
+           given={S.},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=20d82df724d13905a823ce3ce5658b10}{%
+           family={Khatavkar},
+           familyi={K\bibinitperiod},
+           given={H.},
+           giveni={H\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=4b4bb1f1fa9df7c45051cd5cc17cafa9}{%
+           family={Kotecha},
+           familyi={K\bibinitperiod},
+           given={K.},
+           giveni={K\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=68862f4522f7e445012e390eaf193ffc}{%
+           family={Srivastava},
+           familyi={S\bibinitperiod},
+           given={S.},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=ae94732de932a026467811d7affe76fa}{%
+           family={Maheshwari},
+           familyi={M\bibinitperiod},
+           given={P.},
+           giveni={P\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=948ea98e987969073f9b6fb532502c11}{%
+           family={Pandey},
+           familyi={P\bibinitperiod},
+           given={N.},
+           giveni={N\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{12d99f84825ddfe547ef6e646c2b1e4c}
+      \strng{fullhash}{c50fce4782092f25414cfc7cc9dcb595}
+      \strng{fullhashraw}{c50fce4782092f25414cfc7cc9dcb595}
+      \strng{bibnamehash}{12d99f84825ddfe547ef6e646c2b1e4c}
+      \strng{authorbibnamehash}{12d99f84825ddfe547ef6e646c2b1e4c}
+      \strng{authornamehash}{12d99f84825ddfe547ef6e646c2b1e4c}
+      \strng{authorfullhash}{c50fce4782092f25414cfc7cc9dcb595}
+      \strng{authorfullhashraw}{c50fce4782092f25414cfc7cc9dcb595}
+      \field{sortinit}{G}
+      \field{sortinithash}{32d67eca0634bf53703493fb1090a2e8}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{PeerJ Computer Science}
+      \field{title}{Explainable stock prices prediction from financial news articles using sentiment analysis}
+      \field{volume}{7}
+      \field{year}{2021}
+      \field{pages}{e340}
+      \range{pages}{-1}
+      \verb{doi}
+      \verb 10.7717/peerj-cs.340
+      \endverb
+    \endentry
+    \entry{gupta2025investigating}{article}{}{}
+      \name{author}{3}{}{%
+        {{un=0,uniquepart=base,hash=3b31f9309d99275806402a150d3c9190}{%
+           family={Gupta},
+           familyi={G\bibinitperiod},
+           given={Tapas},
+           giveni={T\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=adbdf79ba006b7f60570d7e96ce6d2d5}{%
+           family={Devji},
+           familyi={D\bibinitperiod},
+           given={Shridev},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=79f70e19ebceff04ec68e7c95f1690d9}{%
+           family={Tripathi},
+           familyi={T\bibinitperiod},
+           given={Ashish\bibnamedelima Kumar},
+           giveni={A\bibinitperiod\bibinitdelim K\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{be3627e61abd25e6c7bcf5e49bb5c443}
+      \strng{fullhash}{427739698838389757646c96ef3d224f}
+      \strng{fullhashraw}{427739698838389757646c96ef3d224f}
+      \strng{bibnamehash}{427739698838389757646c96ef3d224f}
+      \strng{authorbibnamehash}{427739698838389757646c96ef3d224f}
+      \strng{authornamehash}{be3627e61abd25e6c7bcf5e49bb5c443}
+      \strng{authorfullhash}{427739698838389757646c96ef3d224f}
+      \strng{authorfullhashraw}{427739698838389757646c96ef3d224f}
+      \field{sortinit}{G}
+      \field{sortinithash}{32d67eca0634bf53703493fb1090a2e8}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{0957-4174}
+      \field{journaltitle}{Expert Systems with Applications}
+      \field{title}{Investigating the impact of sentiments on stock market using digital proxies: Current trends, challenges, and future directions}
+      \field{volume}{285}
+      \field{year}{2025}
+      \field{pages}{127864}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.1016/j.eswa.2025.127864
+      \endverb
+      \verb{urlraw}
+      \verb https://www.sciencedirect.com/science/article/pii/S0957417425014861
+      \endverb
+      \verb{url}
+      \verb https://www.sciencedirect.com/science/article/pii/S0957417425014861
+      \endverb
+    \endentry
+    \entry{nguyen-shirai-2015-topic}{inproceedings}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=7fd4c524ff6d4b0a9cba3962f4713245}{%
+           family={Nguyen},
+           familyi={N\bibinitperiod},
+           given={Thien\bibnamedelima Hai},
+           giveni={T\bibinitperiod\bibinitdelim H\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=695746f28ad3459d300fc931dee406ae}{%
+           family={Shirai},
+           familyi={S\bibinitperiod},
+           given={Kiyoaki},
+           giveni={K\bibinitperiod},
+           givenun=0}}%
+      }
+      \name{editor}{2}{}{%
+        {{hash=9d8c366afd7f948820f05d7fe6206c28}{%
+           family={Zong},
+           familyi={Z\bibinitperiod},
+           given={Chengqing},
+           giveni={C\bibinitperiod}}}%
+        {{hash=c6ed0f37c23e807bba1a5237a69cc2c4}{%
+           family={Strube},
+           familyi={S\bibinitperiod},
+           given={Michael},
+           giveni={M\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Beijing, China}%
+      }
+      \list{publisher}{1}{%
+        {Association for Computational Linguistics}%
+      }
+      \strng{namehash}{13112bbbb47b2dc909d626a6acdf15ab}
+      \strng{fullhash}{13112bbbb47b2dc909d626a6acdf15ab}
+      \strng{fullhashraw}{13112bbbb47b2dc909d626a6acdf15ab}
+      \strng{bibnamehash}{13112bbbb47b2dc909d626a6acdf15ab}
+      \strng{authorbibnamehash}{13112bbbb47b2dc909d626a6acdf15ab}
+      \strng{authornamehash}{13112bbbb47b2dc909d626a6acdf15ab}
+      \strng{authorfullhash}{13112bbbb47b2dc909d626a6acdf15ab}
+      \strng{authorfullhashraw}{13112bbbb47b2dc909d626a6acdf15ab}
+      \strng{editorbibnamehash}{23c31d1401fa72938236c54eed0af9f8}
+      \strng{editornamehash}{23c31d1401fa72938236c54eed0af9f8}
+      \strng{editorfullhash}{23c31d1401fa72938236c54eed0af9f8}
+      \strng{editorfullhashraw}{23c31d1401fa72938236c54eed0af9f8}
+      \field{sortinit}{N}
+      \field{sortinithash}{22369a73d5f88983a108b63f07f37084}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Proceedings of the 53rd Annual Meeting of the Association for Computational Linguistics and the 7th International Joint Conference on Natural Language Processing (Volume 1: Long Papers)}
+      \field{month}{7}
+      \field{title}{Topic Modeling based Sentiment Analysis on Social Media for Stock Market Prediction}
+      \field{year}{2015}
+      \field{pages}{1354\bibrangedash 1364}
+      \range{pages}{11}
+      \verb{doi}
+      \verb 10.3115/v1/P15-1131
+      \endverb
+      \verb{urlraw}
+      \verb https://aclanthology.org/P15-1131/
+      \endverb
+      \verb{url}
+      \verb https://aclanthology.org/P15-1131/
+      \endverb
+    \endentry
+    \entry{shao2025revisiting}{article}{}{}
+      \name{author}{5}{}{%
+        {{un=0,uniquepart=base,hash=706121686d6934ada9c7a36c78fbafed}{%
+           family={Shao},
+           familyi={S\bibinitperiod},
+           given={Zhiqi},
+           giveni={Z\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=a6034ef4659b2145e436638d75a50e35}{%
+           family={Yao},
+           familyi={Y\bibinitperiod},
+           given={Xusheng},
+           giveni={X\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=76d2a0c3861b383bfabec56e48139137}{%
+           family={Chen},
+           familyi={C\bibinitperiod},
+           given={Feng},
+           giveni={F\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=91bb827a2be8f97112e33ad34cbc04da}{%
+           family={Wang},
+           familyi={W\bibinitperiod},
+           given={Ze},
+           giveni={Z\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=4bffe8d37bb00627710c803cc2e223dd}{%
+           family={Gao},
+           familyi={G\bibinitperiod},
+           given={Junbin},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{fc5157f7dcc9600663d46587240d62b7}
+      \strng{fullhash}{3327aca1736ef27561cb6767f571a2a3}
+      \strng{fullhashraw}{3327aca1736ef27561cb6767f571a2a3}
+      \strng{bibnamehash}{fc5157f7dcc9600663d46587240d62b7}
+      \strng{authorbibnamehash}{fc5157f7dcc9600663d46587240d62b7}
+      \strng{authornamehash}{fc5157f7dcc9600663d46587240d62b7}
+      \strng{authorfullhash}{3327aca1736ef27561cb6767f571a2a3}
+      \strng{authorfullhashraw}{3327aca1736ef27561cb6767f571a2a3}
+      \field{sortinit}{S}
+      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{0167-9236}
+      \field{journaltitle}{Decision Support Systems}
+      \field{title}{Revisiting time-varying dynamics in stock market forecasting: A multi-source sentiment analysis approach with large language model}
+      \field{volume}{190}
+      \field{year}{2025}
+      \field{pages}{114362}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.1016/j.dss.2024.114362
+      \endverb
+      \verb{urlraw}
+      \verb https://www.sciencedirect.com/science/article/pii/S0167923624001957
+      \endverb
+      \verb{url}
+      \verb https://www.sciencedirect.com/science/article/pii/S0167923624001957
+      \endverb
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+
