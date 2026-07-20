@@ -8,4 +8,4 @@ HD-SURDLM outperforms benchmarks on hit-rate, but fails to beat an always-up bas
 
 *References*
 
-Shao, Zhiqi et al. (2025). “Revisiting time-varying dynamics in stock market forecasting: A multi-source sentiment analysis approach with large language model”. In: Decision Support Systems 190, p. 114362. issn: 0167-9236. doi: 10.1016/j.dss.2024.114362. url:https://www.sciencedirect.com/science/article/pii/S0167923624001957.
+Shao, Zhiqi et al. (2025). “Revisiting time-varying dynamics in stock market forecasting: A multi-source sentiment analysis approach with large language model”. In: Decision Support Systems 190, p. 114362. issn: 0167-9236. doi: 10.1016/j.dss.2024.114362.
