@@ -7,4 +7,5 @@ Daily sentiment of tweets and headlines is computed using lexicon-based approach
 HD-SURDLM outperforms benchmarks on hit-rate, but fails to beat an always-up baseline on recall and F1, suggesting limited sentiment edge during this bull market period. However, a strategy based on the model's predictions still achieves a higher Sharpe and PnL than simple buy-and-hold. Limitations include uneven headline coverage across firms despite various scraping methods and the lack of follower-level data for tweet weighting.
 
 *References*
+
 Shao, Zhiqi et al. (2025). “Revisiting time-varying dynamics in stock market forecasting: A multi-source sentiment analysis approach with large language model”. In: Decision Support Systems 190, p. 114362. issn: 0167-9236. doi: 10.1016/j.dss.2024.114362. url:https://www.sciencedirect.com/science/article/pii/S0167923624001957.
