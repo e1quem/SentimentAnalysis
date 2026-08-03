@@ -1,6 +1,6 @@
 # SentimentAnalysis
 
-*[Full report](LaTeX/main.pdf)
+*[Full report](LaTeX/main.pdf)*
 
 This project investigates the predictive power of social media (3M tweets) and news (11k headlines) sentiment on stock price movements of five major technology firms (Apple, Amazon, Google, Microsoft, and Tesla) over the period January 2015 to December 2019. We address the next-day and next-week stock price movement prediction task by combining textual sentiment data extracted via NLP techniques with traditional financial features within a unified Bayesian forecasting framework. 
 
